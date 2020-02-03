@@ -19,7 +19,7 @@ import (
 	"unicode"
 
 	"github.com/iancoleman/orderedmap"
-	"github.com/mikunalpha/go-module"
+	module "github.com/sirkon/goproxy/gomod"
 )
 
 type parser struct {
@@ -331,13 +331,13 @@ func (p *parser) parseGoMod() error {
 	if err != nil {
 		return err
 	}
-	goMod, err := module.Parse(b)
+	goMod, err := module.Parse(p.GoModFilePath, b)
 	if err != nil {
 		return err
 	}
-	for i := range goMod.Requires {
+	for pkgName, version := range goMod.Require {
 		pathRunes := []rune{}
-		for _, v := range goMod.Requires[i].Path {
+		for _, v := range pkgName {
 			if !unicode.IsUpper(v) {
 				pathRunes = append(pathRunes, v)
 				continue
@@ -345,8 +345,7 @@ func (p *parser) parseGoMod() error {
 			pathRunes = append(pathRunes, '!')
 			pathRunes = append(pathRunes, unicode.ToLower(v))
 		}
-		pkgName := goMod.Requires[i].Path
-		pkgPath := filepath.Join(p.GoModCachePath, string(pathRunes)+"@"+goMod.Requires[i].Version)
+		pkgPath := filepath.Join(p.GoModCachePath, string(pathRunes)+"@"+version)
 		p.KnownPkgs = append(p.KnownPkgs, pkg{
 			Name: pkgName,
 			Path: pkgPath,
