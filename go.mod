@@ -1,4 +1,4 @@
-module github.com/mikunalpha/goas
+module github.com/thlcodes/goas
 
 go 1.12
 
